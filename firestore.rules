@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // User: { name, email, role, createdAt }
+    // Destination: { name, country, description, imageUrl, price, duration, rating, category, availableSlots, createdAt }
+    // Booking: { bookingRef, destinationId, travelerId, travelDate, passengers, totalAmount, status, createdAt }
+    // Traveler: { name, email, phone, membershipTier, totalTrips, totalSpent, joinedAt }
+    // Payment: { bookingId, amount, status, paymentMethod, transactionId, paidAt }
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "123shinjinee6052@sjcem.edu.in" && request.auth.token.email_verified == true));
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function isValidUser(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.email is string && data.email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$") &&
+             data.role in ['admin', 'customer'] &&
+             data.createdAt is string;
+    }
+
+    function isValidDestination(data) {
+      return data.name is string && data.name.size() > 0 &&
+             data.price is number && data.price >= 0 &&
+             data.category in ['Heritage', 'Nature', 'Adventure', 'Beach', 'Spiritual'];
+    }
+
+    // Rules
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && isValidUser(request.resource.data) && (isOwner(userId) || isAdmin());
+      allow update: if isAuthenticated() && isValidUser(request.resource.data) && (isOwner(userId) || isAdmin());
+    }
+
+    match /destinations/{destinationId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /bookings/{bookingId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAdmin() || (isAuthenticated() && resource.data.travelerId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    match /travelers/{travelerId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /payments/{paymentId} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.travelerId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+  }
+}

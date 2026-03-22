@@ -1,0 +1,86 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Application user profile",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Full name" },
+        "email": { "type": "string", "format": "email", "description": "Email address" },
+        "role": { "type": "string", "enum": ["admin", "customer"], "description": "User role" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Account creation date" }
+      },
+      "required": ["name", "email", "role", "createdAt"]
+    },
+    "Destination": {
+      "title": "Destination",
+      "description": "Travel destination package",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "country": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "price": { "type": "number" },
+        "duration": { "type": "string" },
+        "rating": { "type": "number" },
+        "category": { "type": "string", "enum": ["Heritage", "Nature", "Adventure", "Beach", "Spiritual"] },
+        "availableSlots": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "country", "price", "category", "availableSlots"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "Travel booking record",
+      "type": "object",
+      "properties": {
+        "bookingRef": { "type": "string" },
+        "destinationId": { "type": "string" },
+        "travelerId": { "type": "string" },
+        "travelDate": { "type": "string", "format": "date" },
+        "passengers": { "type": "integer" },
+        "totalAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["Pending", "Confirmed", "Completed", "Cancelled"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["bookingRef", "destinationId", "travelerId", "travelDate", "passengers", "totalAmount", "status"]
+    },
+    "Traveler": {
+      "title": "Traveler",
+      "description": "Customer/Traveler profile",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "membershipTier": { "type": "string", "enum": ["Bronze", "Silver", "Gold", "Platinum"] },
+        "totalTrips": { "type": "integer" },
+        "totalSpent": { "type": "number" },
+        "joinedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "membershipTier"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Payment transaction record",
+      "type": "object",
+      "properties": {
+        "bookingId": { "type": "string" },
+        "amount": { "type": "number" },
+        "status": { "type": "string", "enum": ["Paid", "Pending", "Refunded"] },
+        "paymentMethod": { "type": "string" },
+        "transactionId": { "type": "string" },
+        "paidAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["bookingId", "amount", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": "User", "description": "User profiles" },
+    "/destinations/{destinationId}": { "schema": "Destination", "description": "Travel destinations" },
+    "/bookings/{bookingId}": { "schema": "Booking", "description": "Travel bookings" },
+    "/travelers/{travelerId}": { "schema": "Traveler", "description": "Traveler profiles" },
+    "/payments/{paymentId}": { "schema": "Payment", "description": "Payment records" }
+  }
+}

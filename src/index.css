@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-bg: var(--bg-color);
+  --color-brand-card: var(--card-color);
+  --color-brand-accent: #6366f1;
+  --color-brand-accent-light: #8b5cf6;
+  
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+@variant light (&:where(.light, .light *));
+
+:root {
+  --bg-color: #0f172a;
+  --card-color: rgba(30, 41, 59, 0.7);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+}
+
+.light {
+  --bg-color: #f8fafc;
+  --card-color: rgba(255, 255, 255, 0.8);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-brand-card backdrop-blur-lg border border-white/10 dark:border-white/10 light:border-black/5 shadow-xl;
+  }
+  
+  .glass-hover {
+    @apply hover:bg-brand-card/90 hover:border-white/20 transition-all duration-300;
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-linear-to-r from-brand-accent to-brand-accent-light;
+  }
+  
+  .bg-gradient {
+    @apply bg-linear-to-r from-brand-accent to-brand-accent-light;
+  }
+}
+
+body {
+  @apply bg-brand-bg text-slate-200 dark:text-slate-200 light:text-slate-900 min-h-screen font-sans transition-colors duration-300;
+}
